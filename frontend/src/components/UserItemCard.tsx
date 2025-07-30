@@ -1,0 +1,97 @@
+'use client';
+
+import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
+
+// 獲得したアイテムの型定義
+export type UserItem = {
+  id: string;
+  acquired_at: string;
+  status: string;
+  items: {
+    name: string;
+    rarity: string | null;
+    image_url: string | null;
+    default_point_conversion_rate: number; // 変換レートを追加
+  } | null;
+};
+
+type UserItemCardProps = {
+  item: UserItem;
+  onConvert: (convertedItemId: string, convertedPoints: number) => void; // コールバック関数を追加
+};
+
+export default function UserItemCard({ item, onConvert }: UserItemCardProps) {
+  if (!item.items) {
+    return null; // アイテム情報がない場合は何も表示しない
+  }
+
+  const acquiredDate = new Date(item.acquired_at).toLocaleDateString('ja-JP');
+  const isConvertible = item.status === 'acquired' || item.status === 'kept';
+
+  const handleConvert = async () => {
+    if (!confirm(`${item.items?.name} を ${item.items?.default_point_conversion_rate} ポイントに変換しますか？`)) {
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert('ログインしてください。');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/user-items/${item.id}/convert`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user.id }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'アイテムの変換に失敗しました。');
+      }
+
+      alert(`${item.items?.name} を ${result.converted_points} ポイントに変換しました！`);
+      onConvert(item.id, result.converted_points); // 親コンポーネントに通知
+
+    } catch (err: any) {
+      alert(`エラー: ${err.message}`);
+    }
+  };
+
+  return (
+    <div className="border rounded-lg p-3 shadow-sm flex flex-col h-full">
+      <div className="bg-gray-100 rounded-md aspect-w-1 aspect-h-1 flex-shrink-0">
+        <img 
+          src={item.items.image_url || 'https://storage.googleapis.com/gemini-prod-us-west1-assets/images/placeholder.jpg'} 
+          alt={item.items.name} 
+          className="w-full h-full object-contain"
+        />
+      </div>
+      <div className="mt-3 flex flex-col flex-grow">
+        <h4 className="text-base font-semibold truncate flex-grow">{item.items.name}</h4>
+        <p className="text-sm text-gray-500">{item.items.rarity || 'N/A'}</p>
+        <p className="text-xs text-gray-400 mt-1">獲得日: {acquiredDate}</p>
+        <div className="mt-4 flex space-x-2">
+          <button 
+            onClick={handleConvert}
+            disabled={!isConvertible}
+            className="flex-1 bg-blue-500 text-white text-sm py-2 rounded-md hover:bg-blue-600 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            ポイントに変換 ({item.items?.default_point_conversion_rate || 0} P)
+          </button>
+          <button 
+            disabled={!isConvertible} // 仮で変換可能なら発送も可能とする
+            className="flex-1 bg-green-500 text-white text-sm py-2 rounded-md hover:bg-green-600 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            発送する
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
