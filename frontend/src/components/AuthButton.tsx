@@ -33,6 +33,10 @@ export default function AuthButton() {
     <div className="flex items-center space-x-4">
       {user ? (
         <>
+          <Link href="/charge" className="text-gray-700 hover:text-blue-600 transition duration-300">
+            ポイントチャージ
+          </Link>
+          <span className="text-gray-500">|</span>
           <Link href="/mypage" className="text-gray-700 hover:text-blue-600 transition duration-300">
             マイページ
           </Link>

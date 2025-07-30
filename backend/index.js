@@ -98,6 +98,55 @@ app.post('/api/user-items/:id/convert', async (req, res) => {
 });
 
 
+// ポイントをチャージするAPIエンドポイント (シミュレーション)
+app.post('/api/charge', async (req, res) => {
+  const { userId, amount } = req.body;
+
+  if (!userId || !amount) {
+    return res.status(400).json({ message: 'User ID and amount are required' });
+  }
+
+  if (amount <= 0) {
+    return res.status(400).json({ message: 'Amount must be positive' });
+  }
+
+  try {
+    // ユーザーの現在のポイント残高を取得
+    const { data: balance, error: fetchError } = await supabase
+      .from('user_balances')
+      .select('current_points')
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116は行が存在しないエラー
+      throw fetchError;
+    }
+
+    const newPoints = (balance?.current_points || 0) + amount;
+
+    // ポイント残高を更新 (存在しない場合は新規作成)
+    const { error: upsertError } = await supabase
+      .from('user_balances')
+      .upsert({ user_id: userId, current_points: newPoints });
+
+    if (upsertError) {
+      throw upsertError;
+    }
+
+    // TODO: point_transactionsテーブルにも履歴を記録する
+
+    res.json({ 
+      message: `${amount}ポイントをチャージしました！`, 
+      new_balance: newPoints 
+    });
+
+  } catch (error) {
+    console.error('Charge error:', error);
+    res.status(500).json({ message: 'ポイントのチャージ中にエラーが発生しました', error: error.message });
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`Backend server running on port ${port}`);
 });
