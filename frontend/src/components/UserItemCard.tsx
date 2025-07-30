@@ -58,8 +58,12 @@ export default function UserItemCard({ item, onConvert }: UserItemCardProps) {
       alert(`${item.items?.name} を ${result.converted_points} ポイントに変換しました！`);
       onConvert(item.id, result.converted_points); // 親コンポーネントに通知
 
-    } catch (err: any) {
-      alert(`エラー: ${err.message}`);
+    } catch (err) { // errの型をanyからunknownに変更し、型ガードを行う
+      if (err instanceof Error) {
+        alert(`エラー: ${err.message}`);
+      } else {
+        alert('不明なエラーが発生しました');
+      }
     }
   };
 

@@ -98,9 +98,14 @@ export default function GachaDetailPage() { // propsを削除
       // 在庫表示を更新するためにページをリロード（より良いUIは後で検討）
       window.location.reload();
 
-    } catch (err: any) {
-      setError(err.message);
-      alert(`エラー: ${err.message}`);
+    } catch (err) { // errの型をanyからunknownに変更し、型ガードを行う
+      if (err instanceof Error) {
+        setError(err.message);
+        alert(`エラー: ${err.message}`);
+      } else {
+        setError('An unknown error occurred');
+        alert('不明なエラーが発生しました');
+      }
     } finally {
       setDrawing(false);
     }
