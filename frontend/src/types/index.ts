@@ -8,5 +8,5 @@ export type UserItem = {
     rarity: string | null;
     image_url: string | null;
     default_point_conversion_rate: number;
-  } | null;
+  }[] | null; // オブジェクトの配列、またはnull
 };

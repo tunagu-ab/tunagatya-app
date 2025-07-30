@@ -11,7 +11,7 @@ type UserItemCardProps = {
 };
 
 export default function UserItemCard({ item, onConvert }: UserItemCardProps) {
-  const itemDetails = Array.isArray(item.items) ? item.items[0] : item.items;
+  const itemDetails = item.items?.[0]; // 配列の最初の要素を取得 (オプショナルチェイニング)
 
   if (!itemDetails) {
     return null; // アイテム情報がない場合は何も表示しない
