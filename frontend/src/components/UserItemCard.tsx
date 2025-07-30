@@ -12,7 +12,7 @@ export type UserItem = {
     name: string;
     rarity: string | null;
     image_url: string | null;
-    default_point_conversion_rate: number; // 変換レートを追加
+    default_point_conversion_rate: number;
   } | null;
 };
 
@@ -22,7 +22,9 @@ type UserItemCardProps = {
 };
 
 export default function UserItemCard({ item, onConvert }: UserItemCardProps) {
-  if (!item.items) {
+  const itemDetails = Array.isArray(item.items) ? item.items[0] : item.items;
+
+  if (!itemDetails) {
     return null; // アイテム情報がない場合は何も表示しない
   }
 
@@ -30,7 +32,7 @@ export default function UserItemCard({ item, onConvert }: UserItemCardProps) {
   const isConvertible = item.status === 'acquired' || item.status === 'kept';
 
   const handleConvert = async () => {
-    if (!confirm(`${item.items?.name} を ${item.items?.default_point_conversion_rate} ポイントに変換しますか？`)) {
+    if (!confirm(`${itemDetails.name} を ${itemDetails.default_point_conversion_rate} ポイントに変換しますか？`)) {
       return;
     }
 
@@ -55,7 +57,7 @@ export default function UserItemCard({ item, onConvert }: UserItemCardProps) {
         throw new Error(result.message || 'アイテムの変換に失敗しました。');
       }
 
-      alert(`${item.items?.name} を ${result.converted_points} ポイントに変換しました！`);
+      alert(`${itemDetails.name} を ${result.converted_points} ポイントに変換しました！`);
       onConvert(item.id, result.converted_points); // 親コンポーネントに通知
 
     } catch (err) { // errの型をanyからunknownに変更し、型ガードを行う
@@ -71,14 +73,14 @@ export default function UserItemCard({ item, onConvert }: UserItemCardProps) {
     <div className="border rounded-lg p-3 shadow-sm flex flex-col h-full">
       <div className="bg-gray-100 rounded-md aspect-w-1 aspect-h-1 flex-shrink-0">
         <img 
-          src={item.items.image_url || 'https://storage.googleapis.com/gemini-prod-us-west1-assets/images/placeholder.jpg'} 
-          alt={item.items.name} 
+          src={itemDetails.image_url || 'https://storage.googleapis.com/gemini-prod-us-west1-assets/images/placeholder.jpg'} 
+          alt={itemDetails.name} 
           className="w-full h-full object-contain"
         />
       </div>
       <div className="mt-3 flex flex-col flex-grow">
-        <h4 className="text-base font-semibold truncate flex-grow">{item.items.name}</h4>
-        <p className="text-sm text-gray-500">{item.items.rarity || 'N/A'}</p>
+        <h4 className="text-base font-semibold truncate flex-grow">{itemDetails.name}</h4>
+        <p className="text-sm text-gray-500">{itemDetails.rarity || 'N/A'}</p>
         <p className="text-xs text-gray-400 mt-1">獲得日: {acquiredDate}</p>
         <div className="mt-4 flex space-x-2">
           <button 
@@ -86,7 +88,7 @@ export default function UserItemCard({ item, onConvert }: UserItemCardProps) {
             disabled={!isConvertible}
             className="flex-1 bg-blue-500 text-white text-sm py-2 rounded-md hover:bg-blue-600 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            ポイントに変換 ({item.items?.default_point_conversion_rate || 0} P)
+            ポイントに変換 ({itemDetails.default_point_conversion_rate || 0} P)
           </button>
           <button 
             disabled={!isConvertible} // 仮で変換可能なら発送も可能とする

@@ -5,8 +5,18 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import UserItemCard, { UserItem } from '@/components/UserItemCard';
 
+// mypageで使う型を再定義
+type MyPageUserItem = Omit<UserItem, 'items'> & {
+  items: {
+    name: string;
+    rarity: string | null;
+    image_url: string | null;
+    default_point_conversion_rate: number;
+  } | null;
+};
+
 export default function MyPage() {
-  const [userItems, setUserItems] = useState<UserItem[]>([]);
+  const [userItems, setUserItems] = useState<MyPageUserItem[]>([]);
   const [userPoints, setUserPoints] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
