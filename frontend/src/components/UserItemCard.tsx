@@ -3,21 +3,10 @@
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
-// 獲得したアイテムの型定義
-export type UserItem = {
-  id: string;
-  acquired_at: string;
-  status: string;
-  items: {
-    name: string;
-    rarity: string | null;
-    image_url: string | null;
-    default_point_conversion_rate: number;
-  } | null;
-};
+import { UserItem } from '@/types'; // 共通の型定義をインポート
 
 type UserItemCardProps = {
-  item: any; // 型をanyに変更
+  item: UserItem;
   onConvert: (convertedItemId: string, convertedPoints: number) => void;
 };
 

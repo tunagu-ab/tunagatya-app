@@ -4,22 +4,10 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import UserItemCard from '@/components/UserItemCard';
-
-// mypageで使う型を再定義
-type MyPageUserItem = {
-  id: string;
-  acquired_at: string;
-  status: string;
-  items: {
-    name: string;
-    rarity: string | null;
-    image_url: string | null;
-    default_point_conversion_rate: number;
-  } | null;
-};
+import { UserItem } from '@/types'; // 共通の型定義をインポート
 
 export default function MyPage() {
-  const [userItems, setUserItems] = useState<MyPageUserItem[]>([]);
+  const [userItems, setUserItems] = useState<UserItem[]>([]);
   const [userPoints, setUserPoints] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
