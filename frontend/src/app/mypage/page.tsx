@@ -44,7 +44,8 @@ export default function MyPage() {
           items (
             name,
             rarity,
-            image_url
+            image_url,
+            default_point_conversion_rate
           )
         `)
         .eq('user_id', user.id)
