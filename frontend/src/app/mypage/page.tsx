@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import UserItemCard, { UserItem } from '@/components/UserItemCard';
+import UserItemCard from '@/components/UserItemCard';
 
 // mypageで使う型を再定義
-type MyPageUserItem = Omit<UserItem, 'items'> & {
+type MyPageUserItem = {
+  id: string;
+  acquired_at: string;
+  status: string;
   items: {
     name: string;
     rarity: string | null;

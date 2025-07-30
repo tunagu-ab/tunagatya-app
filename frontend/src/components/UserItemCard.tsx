@@ -17,8 +17,8 @@ export type UserItem = {
 };
 
 type UserItemCardProps = {
-  item: UserItem;
-  onConvert: (convertedItemId: string, convertedPoints: number) => void; // コールバック関数を追加
+  item: any; // 型をanyに変更
+  onConvert: (convertedItemId: string, convertedPoints: number) => void;
 };
 
 export default function UserItemCard({ item, onConvert }: UserItemCardProps) {
